@@ -28,14 +28,17 @@ const Navbar: React.FC = () => {
         </div>
 
         <div className={`md:flex hidden space-x-4`}>
-          <Link href="/job">
-            <p className="text-blackhover:rounded hover:bg-gray-300 p-2">Jobs</p>
+        <Link href="/">
+            <p className="text-blackhover:rounded hover:bg-gray-300 p-2">Home</p>
           </Link>
           <Link href="/ai-tools">
             <p className="text-black hover:rounded hover:bg-gray-300 p-2">AI Tools</p>
           </Link>
           <Link href='/ai-tools/study-plan'>
             <p className="text-black  hover:rounded hover:bg-gray-300 p-2">Study Plan</p>
+          </Link>
+          <Link href="/job">
+            <p className="text-blackhover:rounded hover:bg-gray-300 p-2">Jobs</p>
           </Link>
           <Link href='/scholarship'>
             <p className="text-black hover:rounded hover:bg-gray-300 p-2">Scholarships</p>
