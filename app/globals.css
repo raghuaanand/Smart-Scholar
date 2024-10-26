@@ -59,6 +59,12 @@
   }
 }
 
+/* increase the width and height of the userButton component that comes from clerk */
+.cl-avatarBox {
+  width: 2.75rem;
+  height: 2.75rem;
+}
+
 @layer base {
   * {
     @apply border-border;

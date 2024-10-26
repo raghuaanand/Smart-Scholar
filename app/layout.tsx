@@ -2,8 +2,6 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/headers";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
 import { Chatz } from "@/components/chatz";
 import { ClerkProvider } from "@clerk/nextjs";
 
@@ -24,11 +22,11 @@ export default function RootLayout({
     <html lang="en">
      
       <body className={inter.className}>
-       <div className="z-10 fixed">
-      <Navbar />
-      </div> 
+        <div className="z-10 fixed  md:w-screen md:flex md:justify-center ">
+          <Navbar />
+        </div> 
         {children}
-       <Chatz />
+       {/* <Chatz /> */}
         </body>
     </html>
       </ClerkProvider>

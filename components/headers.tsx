@@ -2,33 +2,35 @@
 
 
 import Link from 'next/link';
-import SparklesText from "@/components/magicui/sparkles-text";
 import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/nextjs';
 import { useState } from 'react';
+import Image from 'next/image';
+import { FiMenu } from "react-icons/fi";
+
 
 const Navbar: React.FC = () => {
   const [isDropdownOpen, setDropdownOpen] = useState(false);
 
   return (
-    <nav className="bg-slate-50 w-full p-4 fixed top-0 z-10 shadow-md">
+    <nav className="fixed bg-slate-50 w-[90%] py-2  md:py-4 md:top-10 top-5 rounded-full z-10 shadow-xl border-[1px] md:border-[2px]">
       <div className="container mx-auto flex justify-between items-center">
-        <div className="text-black font-bold text-xs">
-          <Link href='/' className='text-black'>
-            <SparklesText text="Smart Scholar" className='text-xs md:text-xl' />
+        <div className="text-black font-bold text-xs hidden md:flex">
+          <Link href='/' >
+            <Image src={'/smart-scholar-high-resolution-logo-grayscale-transparent.png'} alt='logo' width={200} height={200} className='hidden md:flex '/>
           </Link>
         </div>
 
-        <div className="md:hidden flex items-center">
-          <button 
-            onClick={() => setDropdownOpen(!isDropdownOpen)} 
-            className="text-black text-xs p-2 focus:outline-none"
+        <div className="md:hidden">
+          <button
+            onClick={() => setDropdownOpen(!isDropdownOpen)}
+            className=""
           >
-            Menu
+           <FiMenu className='text-3xl'/>
           </button>
         </div>
 
         <div className={`md:flex hidden space-x-4`}>
-        <Link href="/">
+          <Link href="/">
             <p className="text-blackhover:rounded hover:bg-gray-300 p-2">Home</p>
           </Link>
           <Link href="/ai-tools">
@@ -48,6 +50,7 @@ const Navbar: React.FC = () => {
           </Link>
         </div>
 
+        {/* TODO Use Auth.js for authentication */}
         <div className="flex items-center gap-4">
           <SignedOut>
             <SignInButton />
