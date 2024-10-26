@@ -12,7 +12,7 @@ const Navbar: React.FC = () => {
   const [isDropdownOpen, setDropdownOpen] = useState(false);
 
   return (
-    <nav className="fixed bg-slate-50 w-[90%] py-2  md:py-4 md:top-10 top-5 rounded-full z-10 shadow-xl border-[1px] md:border-[2px]">
+    <nav className="fixed bg-gray-50 w-[90%] py-2 ml-4  md:py-4 md:top-10 top-5 rounded-full z-10  shadow-2xl border-gray-50 border-[0.5px]">
       <div className="container mx-auto flex justify-between items-center">
         <div className="text-black font-bold text-xs hidden md:flex">
           <Link href='/' >

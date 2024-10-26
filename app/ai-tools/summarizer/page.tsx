@@ -77,7 +77,7 @@ const SummarizerPage: React.FC = () => {
   return (
     <div className="md:pt-[160px] border-[2px] w-screen h-screen pt-16 md:px-4 md:mx-4 flex flex-col items-center justify-center">
       {/* <h1 className="text-3xl font-bold mb-6">AI Summarizer</h1> */}
-      <form onSubmit={handleSubmit} className="flex w-screen items-center justify-center fixed bottom-16 md:bottom-20 ">
+      <form onSubmit={handleSubmit} className="flex w-screen items-center justify-center fixed bottom-10 md:bottom-20 ">
         <textarea
           id="prompt"
           name="prompt"
@@ -106,7 +106,7 @@ const SummarizerPage: React.FC = () => {
 
       {error && <p className="mt-4 text-red-500 text-center">{error}</p>}
       {summary && (
-        <div className="fixed md:top-48 top-32 md:w-[60%] flex md:gap-7">
+        <div className="fixed md:top-48 top-32 md:w-[60%] w-[90%] flex gap-3 md:gap-7">
           <div>
             <UserButton />
           </div>

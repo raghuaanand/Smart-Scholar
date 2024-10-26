@@ -41,43 +41,6 @@ export default function Home() {
           </Button>
         </Link>
       </section>
-
-      {/* Other Tools Section */}
-      <section className="w-full max-w-6xl px-4 mt-12">
-        <h2 className="text-3xl font-bold text-gray-800 mb-6">
-          Additional Resources
-        </h2>
-        <AdditionalResources />
-      </section>
-
-
-      {/* FAQ Section */}
-      <section className="w-full max-w-6xl px-4 mt-12">
-        <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">
-          Frequently Asked Questions
-        </h2>
-        <FrequentlyAsked />
-      </section>
-
-      {/* Call to Action Section */}
-      <section className="w-full px-4 mt-12 text-center">
-        <h2 className="text-3xl font-bold text-gray-900 mb-4">
-          Get Started for Free
-        </h2>
-        <p className="text-lg text-gray-600 mb-6">
-          Take Smart Scholar for a spin today. No credit card required.
-        </p>
-        <Link href="#tools">
-          <Button className="text-xl px-6 py-3 bg-blue-600 text-white hover:bg-blue-700 transition-colors">
-            Try Smart Scholar Free
-          </Button>
-        </Link>
-      </section>
-
-      {/* Pricing and Footer */}
-      <section className="w-full px-4 mt-12">
-        <Pricing />
-      </section>
       <div className="w-full mt-12">
         <Footer />
       </div>
