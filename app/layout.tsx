@@ -22,11 +22,13 @@ export default function RootLayout({
     <html lang="en">
      
       <body className={inter.className}>
-        <div className="z-10 fixed  md:w-screen md:flex md:justify-center ">
-          <Navbar />
-        </div> 
-        {children}
-       {/* <Chatz /> */}
+        <div className="w-screen">
+          <div className="z-10 fixed md:w-screen md:flex md:justify-center ">
+            <Navbar />
+          </div> 
+          {children}
+        {/* <Chatz /> */}
+        </div>
         </body>
     </html>
       </ClerkProvider>

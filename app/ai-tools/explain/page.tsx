@@ -1,7 +1,15 @@
 'use client';
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
+import { Textarea } from "@/components/ui/textarea";
+import { HiOutlineClipboardDocument } from "react-icons/hi2";
+import { HiOutlineClipboardDocumentCheck } from "react-icons/hi2";
+import { UserButton } from "@clerk/nextjs";
+import { IoDownloadOutline } from "react-icons/io5";
+import { MdDownloadDone } from "react-icons/md";
+import { BiUpload } from "react-icons/bi";
+import { AiOutlineLoading } from "react-icons/ai";
 
 export default function Home() {
   const [text, setText] = useState("");
@@ -9,9 +17,34 @@ export default function Home() {
   const [input, setInput] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [history, setHistory] = useState<string[]>([]);
+  const [clipboard, setClipboard] = useState<boolean | null>(false);
+  const [download, setDownload] = useState<boolean | null>(false);
+  const [displayedText, setDisplayedText] = useState("");
+
+  useEffect(() => {
+    let index = -1;
+    setDisplayedText("");
+    const intervalId = setInterval(() => {
+      if (text && text.length > 0) {
+        setDisplayedText((prev) => prev + text.charAt(index));
+        index++;
+      } else {
+        clearInterval(intervalId);
+      }
+    }, 5);
+
+    return () => clearInterval(intervalId);
+  }, [text]);
+
+  const handleClipboard = () => {
+    setClipboard(true);
+  }
+  const handleDownload = () => {
+    setDownload(true);
+  }
 
   const handleSubmit = async (e: any) => {
-    e.preventDefault(); 
+    e.preventDefault();
     setIsLoading(true);
     setError(null);
 
@@ -36,80 +69,83 @@ export default function Home() {
     } finally {
       setIsLoading(false);
     }
+
+    setTimeout(() => {
+      // Simulating an API call delay
+      setInput(""); // Clear the textarea
+      setIsLoading(false);
+    }, 10);
   };
 
-  const handleClear = () => {
-    setInput('');
-    setText('');
-    setError(null);
-  };
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center pt-6 px-4 sm:px-6 lg:px-8 bg-gray-50 dark:bg-gray-900">
-      <div className="w-full max-w-3xl lg:max-w-4xl bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
-        <div className="mb-6">
-          <h4 className="text-2xl md:text-3xl font-bold mb-2 text-center text-gray-900 dark:text-gray-100">AI Tools</h4>
-          <p className="text-lg text-gray-600 dark:text-gray-300 text-center">Simplify complex topics with AI</p>
-        </div>
+    <main className=" h-screen flex justify-center">
 
-        <div className="bg-blue-100 dark:bg-blue-900 p-4 rounded-lg shadow-md">
-          {isLoading ? (
-            <div className="flex justify-center">
-              <div className="spinner-border animate-spin inline-block w-8 h-8 border-4 rounded-full text-blue-500"></div>
+      {(
+        text && (
+          <div className="fixed md:top-48 top-32 md:w-[60%] w-[90%] flex gap-3 md:gap-7">
+            <div>
+              <UserButton />
             </div>
-          ) : error ? (
-            <p className="text-center text-red-500">{error}</p>
-          ) : (
-            text && (
-              <div className="mb-4">
-                <p className="text-sm font-bold text-gray-800 dark:text-gray-200 mb-4">{text}</p>
-                <div className="flex justify-between">
-                  <button 
-                    className="bg-gray-500 text-white p-2 rounded-lg hover:bg-gray-600 transition w-full"
-                    onClick={() => navigator.clipboard.writeText(text)}
-                  >
-                    Copy to Clipboard
-                  </button>
-                  <button 
-                    className="bg-green-500 text-white p-2 rounded-lg hover:bg-green-600 transition w-full"
-                    onClick={() => downloadExplanation(text)}
-                  >
-                    Download
-                  </button>
-                </div>
+            <div className="max-h-[70vh] overflow-y-auto">
+              <p className="md:text-lg text-sm md:mb-20 text-justify pr-6">{displayedText}</p>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => navigator.clipboard.writeText(text).then(handleClipboard)}
+                >
+                  {clipboard ? (
+                    <HiOutlineClipboardDocumentCheck className="md:text-2xl text-gray-500 hover:text-gray-700" />
+                  ) : (
+                    <HiOutlineClipboardDocument className="md:text-2xl text-gray-500 hover:text-gray-700" />
+                  )}
+                </button>
+                <button
+                  onClick={() => { downloadExplanation(text); handleDownload; }}
+                >
+                  {download ? (
+                    <IoDownloadOutline className="md:text-2xl text-gray-500 hover:text-gray-700" />
+                  ) : (
+                    <MdDownloadDone className="md:text-2xl text-gray-500 hover:text-gray-700" />
+                  )}
+                </button>
               </div>
-            )
-          )}
-
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4 mt-4">
-            <label htmlFor="prompt" className="text-md font-semibold text-gray-900 dark:text-gray-100">Topic</label>
-            <input
-              id="prompt"
-              name="prompt"
-              value={input}
-              placeholder='Type here'
-              onChange={(e) => setInput(e.target.value)}
-              className='w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-300'
-            />
-            <div className="flex justify-between">
-              <button
-                type="submit"
-                className="bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 transition w-full"
-              >
-                Submit
-              </button>
-              <button
-                type="button"
-                className="bg-gray-300 dark:bg-gray-700 text-black dark:text-white p-3 rounded-lg hover:bg-gray-400 dark:hover:bg-gray-600 transition w-full"
-                onClick={handleClear}
-              >
-                Clear
-              </button>
             </div>
-          </form>
-        </div>
+          </div>
+        )
+      )}
 
-        {history.length > 0 && (
+
+
+
+      <form onSubmit={handleSubmit} className="flex md:w-[60%] w-[80%] items-center justify-center fixed bottom-10 z-20 bg-white  md:bottom-20 gap-2 ">
+        <Textarea
+          id="prompt"
+          name="prompt"
+          value={input}
+          placeholder='Type here'
+          onChange={(e) => setInput(e.target.value)}
+          className='md:px-8 md:py-3 md:text-lg text-sm overflow-hidden'
+        />
+        <div className="flex justify-between">
+          <button
+            type="submit"
+            className=""
+          >
+            {isLoading ? (
+              <div className="bg-gray-100 rounded-full md:w-16 w-10 h-10 md:h-16 flex items-center justify-center">
+                <AiOutlineLoading className="md:text-3xl text-xl hover:animate-spin text-gray-400" />
+              </div>
+            ) : (
+              <div className="bg-gray-100 rounded-full md:w-16 w-10 h-10 md:h-16 flex items-center justify-center">
+                <BiUpload className="md:text-3xl text-xl hover:animate-bounce text-gray-400" />
+              </div>
+            )}
+          </button>
+        </div>
+      </form>
+
+      {/* {history.length > 0 && (
           <div className="mt-6">
             <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">History</h2>
             <ul className="list-disc list-inside mt-2">
@@ -118,8 +154,7 @@ export default function Home() {
               ))}
             </ul>
           </div>
-        )}
-      </div>
+        )} */}
     </main>
   );
 }
