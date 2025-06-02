@@ -1,11 +1,11 @@
 'use client';
 
 import { useEffect, useState } from "react";
-import { Upload, Copy, Check, Sparkles, FileText } from "lucide-react";
+import { Copy, Check, Sparkles, FileText, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { UserButton } from "@clerk/nextjs";
+import { formatAIText } from '@/lib/utils';
 
 const SummarizerPage: React.FC = () => {
   const [summary, setSummary] = useState<string | null>('');
@@ -87,101 +87,125 @@ const SummarizerPage: React.FC = () => {
         </div>
 
         <div className="max-w-4xl mx-auto">
-          <div className="grid gap-8 lg:grid-cols-2">
-            {/* Input Section */}
-            <Card className="border-0 shadow-lg">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <FileText className="w-5 h-5 text-blue-600" />
-                  Input Text
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <Textarea
-                    value={prompt}
-                    onChange={(e) => setPrompt(e.target.value)}
-                    placeholder="Paste your text here to get a concise summary..."
-                    className="min-h-[200px] resize-none border-gray-200 focus:border-blue-500 focus:ring-blue-500"
-                    disabled={isLoading}
-                  />
-                  <Button
-                    type="submit"
-                    disabled={isLoading || !prompt.trim()}
-                    className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 rounded-xl transition-all duration-300"
-                  >
-                    {isLoading ? (
-                      <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                        Generating Summary...
-                      </>
-                    ) : (
-                      <>
-                        <Upload className="w-4 h-4 mr-2" />
-                        Generate Summary
-                      </>
-                    )}
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
-
-            {/* Output Section */}
-            <Card className="border-0 shadow-lg">
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Sparkles className="w-5 h-5 text-purple-600" />
-                    Generated Summary
+          {/* Chat-like Interface */}
+          <Card className="border-0 shadow-lg h-[600px] flex flex-col">
+            <CardHeader className="border-b bg-gradient-to-r from-blue-500 to-purple-600 text-white">
+              <CardTitle className="flex items-center gap-2">
+                <FileText className="w-5 h-5" />
+                Smart Text Summarizer
+              </CardTitle>
+            </CardHeader>
+            
+            {/* Messages Area */}
+            <CardContent className="flex-1 p-6 overflow-y-auto">
+              {summary ? (
+                <div className="space-y-4">
+                  {/* User Query */}
+                  <div className="flex justify-end">
+                    <div className="bg-blue-500 text-white p-4 rounded-lg max-w-[80%] ml-auto">
+                      <div className="text-sm">
+                        <strong>Text to Summarize:</strong>
+                        <div className="mt-2 text-xs bg-blue-600 p-2 rounded max-h-20 overflow-y-auto">
+                          {prompt.substring(0, 200)}
+                          {prompt.length > 200 && '...'}
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  {summary && (
-                    <Button
-                      onClick={handleClipboard}
-                      variant="outline"
-                      size="sm"
-                      className="hover:bg-gray-50"
-                    >
-                      {copied ? (
-                        <>
-                          <Check className="w-4 h-4 mr-1 text-green-600" />
-                          Copied!
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="w-4 h-4 mr-1" />
-                          Copy
-                        </>
+                  
+                  {/* AI Response */}
+                  <div className="flex justify-start">
+                    <div className="bg-gradient-to-br from-blue-50 to-purple-50 border rounded-lg p-6 max-w-[90%]">
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-2">
+                          <Sparkles className="w-5 h-5 text-purple-600" />
+                          <span className="font-semibold text-gray-900">Summary</span>
+                        </div>
+                        <Button
+                          onClick={handleClipboard}
+                          variant="outline"
+                          size="sm"
+                          className="hover:bg-gray-50"
+                        >
+                          {copied ? (
+                            <>
+                              <Check className="w-4 h-4 mr-1 text-green-600" />
+                              Copied!
+                            </>
+                          ) : (
+                            <>
+                              <Copy className="w-4 h-4 mr-1" />
+                              Copy
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                      <div 
+                        className="prose prose-sm max-w-none text-gray-800 leading-relaxed"
+                        dangerouslySetInnerHTML={{ __html: formatAIText(displayedText) }}
+                      />
+                      {displayedText !== summary && (
+                        <span className="animate-pulse text-purple-600">|</span>
                       )}
-                    </Button>
-                  )}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center h-full text-gray-500">
+                  <FileText className="h-12 w-12 mb-4 text-gray-300" />
+                  <p>Paste your text below to get a concise summary</p>
+                </div>
+              )}
+            </CardContent>
+
+            {/* Input Form at Bottom */}
+            <div className="border-t bg-gray-50/50 p-6">
+              <form onSubmit={handleSubmit} className="space-y-4">
                 {error && (
                   <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
                     <p className="text-red-700 text-sm">{error}</p>
                   </div>
                 )}
-                
-                {summary ? (
-                  <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-lg p-6 min-h-[200px]">
-                    <p className="text-gray-800 leading-relaxed whitespace-pre-wrap">
-                      {displayedText}
-                      {displayedText !== summary && (
-                        <span className="animate-pulse">|</span>
+
+                <div className="flex gap-2">
+                  <Textarea
+                    value={prompt}
+                    onChange={(e) => setPrompt(e.target.value)}
+                    placeholder="Paste your text here to get a concise summary..."
+                    className="flex-1 resize-none border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                    rows={3}
+                    disabled={isLoading}
+                  />
+                  <div className="flex flex-col gap-2">
+                    <Button
+                      type="submit"
+                      disabled={isLoading || !prompt.trim()}
+                      className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold px-6 rounded-xl transition-all duration-300"
+                    >
+                      {isLoading ? (
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                      ) : (
+                        <Send className="w-4 h-4" />
                       )}
-                    </p>
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => {
+                        setPrompt('');
+                        setSummary('');
+                        setDisplayedText('');
+                        setError(null);
+                      }}
+                      className="px-6"
+                    >
+                      Clear
+                    </Button>
                   </div>
-                ) : (
-                  <div className="bg-gray-50 rounded-lg p-6 min-h-[200px] flex items-center justify-center">
-                    <p className="text-gray-500 text-center">
-                      Your AI-generated summary will appear here
-                    </p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </div>
+                </div>
+              </form>
+            </div>
+          </Card>
         </div>
 
         {/* Features */}

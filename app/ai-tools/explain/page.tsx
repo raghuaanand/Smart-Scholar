@@ -1,11 +1,12 @@
 'use client';
 
 import { useEffect, useState } from "react";
-import { Upload, Copy, Check, Sparkles, FileText, Download, HelpCircle } from "lucide-react";
+import { Upload, Copy, Check, Sparkles, FileText, Download, HelpCircle, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { UserButton } from "@clerk/nextjs";
+import { formatAIText } from '@/lib/utils';
 
 export default function ExplainPage() {
   const [text, setText] = useState("");
@@ -100,121 +101,124 @@ export default function ExplainPage() {
         </div>
 
         <div className="max-w-4xl mx-auto">
-          <div className="grid gap-8 lg:grid-cols-2">
-            {/* Input Section */}
-            <Card className="border-0 shadow-lg">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <FileText className="w-5 h-5 text-blue-600" />
-                  Ask Your Question
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <Textarea
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    placeholder="Ask anything you want to understand better..."
-                    className="min-h-[200px] resize-none border-gray-200 focus:border-blue-500 focus:ring-blue-500"
-                    disabled={isLoading}
-                  />
-                  <Button
-                    type="submit"
-                    disabled={isLoading || !input.trim()}
-                    className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 rounded-xl transition-all duration-300"
-                  >
-                    {isLoading ? (
-                      <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                        Generating Explanation...
-                      </>
-                    ) : (
-                      <>
-                        <Upload className="w-4 h-4 mr-2" />
-                        Get Explanation
-                      </>
-                    )}
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
-
-            {/* Output Section */}
-            <Card className="border-0 shadow-lg">
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Sparkles className="w-5 h-5 text-purple-600" />
-                    Explanation
-                  </div>
-                  {text && (
-                    <div className="flex gap-2">
-                      <Button
-                        onClick={handleClipboard}
-                        variant="outline"
-                        size="sm"
-                        className="hover:bg-gray-50"
-                      >
-                        {copied ? (
-                          <>
-                            <Check className="w-4 h-4 mr-1 text-green-600" />
-                            Copied!
-                          </>
-                        ) : (
-                          <>
-                            <Copy className="w-4 h-4 mr-1" />
-                            Copy
-                          </>
-                        )}
-                      </Button>
-                      <Button
-                        onClick={() => downloadExplanation(text)}
-                        variant="outline"
-                        size="sm"
-                        className="hover:bg-gray-50"
-                      >
-                        {downloaded ? (
-                          <>
-                            <Check className="w-4 h-4 mr-1 text-green-600" />
-                            Downloaded!
-                          </>
-                        ) : (
-                          <>
-                            <Download className="w-4 h-4 mr-1" />
-                            Download
-                          </>
-                        )}
-                      </Button>
+          {/* Chat-like Interface */}
+          <Card className="border-0 shadow-lg h-[600px] flex flex-col">
+            <CardHeader className="border-b bg-gradient-to-r from-blue-500 to-purple-600 text-white">
+              <CardTitle className="flex items-center gap-2">
+                <HelpCircle className="w-5 h-5" />
+                Concept Explainer Assistant
+              </CardTitle>
+            </CardHeader>
+            
+            {/* Messages Area */}
+            <CardContent className="flex-1 p-6 overflow-y-auto">
+              {text ? (
+                <div className="space-y-4">
+                  {/* User Query */}
+                  <div className="flex justify-end">
+                    <div className="bg-blue-500 text-white p-4 rounded-lg max-w-[80%] ml-auto">
+                      <p className="text-sm">{input}</p>
                     </div>
-                  )}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
+                  </div>
+                  
+                  {/* AI Response */}
+                  <div className="flex justify-start">
+                    <div className="bg-gradient-to-br from-blue-50 to-purple-50 border rounded-lg p-6 max-w-[90%]">
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-2">
+                          <Sparkles className="w-5 h-5 text-purple-600" />
+                          <span className="font-semibold text-gray-900">Explanation</span>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button
+                            onClick={handleClipboard}
+                            variant="outline"
+                            size="sm"
+                            className="hover:bg-gray-50"
+                          >
+                            {copied ? (
+                              <>
+                                <Check className="w-4 h-4 mr-1 text-green-600" />
+                                Copied!
+                              </>
+                            ) : (
+                              <>
+                                <Copy className="w-4 h-4 mr-1" />
+                                Copy
+                              </>
+                            )}
+                          </Button>
+                          <Button
+                            onClick={() => downloadExplanation(text)}
+                            variant="outline"
+                            size="sm"
+                            className="hover:bg-gray-50"
+                          >
+                            {downloaded ? (
+                              <>
+                                <Check className="w-4 h-4 mr-1 text-green-600" />
+                                Downloaded!
+                              </>
+                            ) : (
+                              <>
+                                <Download className="w-4 h-4 mr-1" />
+                                Download
+                              </>
+                            )}
+                          </Button>
+                        </div>
+                      </div>
+                      <div 
+                        className="prose prose-sm max-w-none text-gray-800 leading-relaxed"
+                        dangerouslySetInnerHTML={{ __html: formatAIText(displayedText) }}
+                      />
+                      {displayedText !== text && (
+                        <span className="animate-pulse">|</span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center h-full text-gray-500">
+                  <HelpCircle className="h-12 w-12 mb-4 text-gray-300" />
+                  <p>Ask any question to get a detailed explanation</p>
+                </div>
+              )}
+            </CardContent>
+
+            {/* Input Form at Bottom */}
+            <div className="border-t bg-gray-50/50 p-6">
+              <form onSubmit={handleSubmit} className="space-y-4">
                 {error && (
                   <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
                     <p className="text-red-700 text-sm">{error}</p>
                   </div>
                 )}
                 
-                {text ? (
-                  <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-lg p-6 min-h-[200px] max-h-[400px] overflow-y-auto">
-                    <p className="text-gray-800 leading-relaxed whitespace-pre-wrap">
-                      {displayedText}
-                      {displayedText !== text && (
-                        <span className="animate-pulse">|</span>
-                      )}
-                    </p>
-                  </div>
-                ) : (
-                  <div className="bg-gray-50 rounded-lg p-6 min-h-[200px] flex items-center justify-center">
-                    <p className="text-gray-500 text-center">
-                      Your detailed explanation will appear here
-                    </p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </div>
+                <div className="flex gap-2">
+                  <Textarea
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    placeholder="Ask anything you want to understand better..."
+                    className="flex-1 resize-none border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                    rows={3}
+                    disabled={isLoading}
+                  />
+                  <Button
+                    type="submit"
+                    disabled={isLoading || !input.trim()}
+                    className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold px-6 rounded-xl transition-all duration-300"
+                  >
+                    {isLoading ? (
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    ) : (
+                      <Send className="w-4 h-4" />
+                    )}
+                  </Button>
+                </div>
+              </form>
+            </div>
+          </Card>
         </div>
 
         {/* Features */}

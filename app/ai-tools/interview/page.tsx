@@ -1,10 +1,11 @@
 'use client';
 
 import { useState } from "react";
-import { Copy, Check, Sparkles, Users, MessageCircle, Upload, BriefcaseIcon } from "lucide-react";
+import { Copy, Check, Sparkles, Users, MessageCircle, BriefcaseIcon, Send } from "lucide-react";
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { formatAIText } from '@/lib/utils';
 
 const InterviewPrep: React.FC = () => {
   const [response, setResponse] = useState<string>('');
@@ -114,105 +115,118 @@ const InterviewPrep: React.FC = () => {
             </CardContent>
           </Card>
 
-          <div className="grid gap-8 lg:grid-cols-2">
-            {/* Input Section */}
-            <Card className="border-0 shadow-lg">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Users className="w-5 h-5 text-blue-600" />
-                  Practice Question
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div className="space-y-2">
-                    <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
-                      <MessageCircle className="w-4 h-4" />
-                      Interview Question or Scenario
-                    </label>
-                    <Textarea
-                      value={prompt}
-                      onChange={(e) => setPrompt(e.target.value)}
-                      placeholder="Type your interview question or create a custom scenario..."
-                      className="min-h-[150px] resize-none border-gray-200 focus:border-blue-500 focus:ring-blue-500"
-                      disabled={isLoading}
-                    />
-                  </div>
-
-                  {error && (
-                    <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-                      <p className="text-red-700 text-sm">{error}</p>
+          {/* Chat-like Interface */}
+          <Card className="border-0 shadow-lg h-[600px] flex flex-col">
+            <CardHeader className="border-b bg-gradient-to-r from-blue-500 to-purple-600 text-white">
+              <CardTitle className="flex items-center gap-2">
+                <BriefcaseIcon className="w-5 h-5" />
+                AI Interview Coach
+              </CardTitle>
+            </CardHeader>
+            
+            {/* Messages Area */}
+            <CardContent className="flex-1 p-6 overflow-y-auto">
+              {response ? (
+                <div className="space-y-4">
+                  {/* User Query */}
+                  <div className="flex justify-end">
+                    <div className="bg-blue-500 text-white p-4 rounded-lg max-w-[80%] ml-auto">
+                      <div className="text-sm">
+                        <p><strong>Question:</strong> {prompt}</p>
+                      </div>
                     </div>
-                  )}
-
-                  <Button
-                    type="submit"
-                    disabled={isLoading || !prompt.trim()}
-                    className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 rounded-xl transition-all duration-300"
-                  >
-                    {isLoading ? (
-                      <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                        Preparing Response...
-                      </>
-                    ) : (
-                      <>
-                        <Upload className="w-4 h-4 mr-2" />
-                        Get AI Response
-                      </>
-                    )}
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
-
-            {/* Output Section */}
-            <Card className="border-0 shadow-lg">
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Sparkles className="w-5 h-5 text-purple-600" />
-                    AI-Generated Response
                   </div>
-                  {response && (
-                    <Button
-                      onClick={handleCopyToClipboard}
-                      variant="outline"
-                      size="sm"
-                      className="hover:bg-gray-50"
-                    >
-                      {copied ? (
-                        <>
-                          <Check className="w-4 h-4 mr-1 text-green-600" />
-                          Copied!
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="w-4 h-4 mr-1" />
-                          Copy
-                        </>
-                      )}
-                    </Button>
-                  )}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {response ? (
-                  <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-lg p-6 min-h-[300px] max-h-[500px] overflow-y-auto">
-                    <pre className="whitespace-pre-wrap text-gray-800 leading-relaxed text-sm">
-                      {response}
-                    </pre>
+                  
+                  {/* AI Response */}
+                  <div className="flex justify-start">
+                    <div className="bg-gradient-to-br from-blue-50 to-purple-50 border rounded-lg p-6 max-w-[90%]">
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-2">
+                          <Sparkles className="w-5 h-5 text-purple-600" />
+                          <span className="font-semibold text-gray-900">AI Response</span>
+                        </div>
+                        <Button
+                          onClick={handleCopyToClipboard}
+                          variant="outline"
+                          size="sm"
+                          className="hover:bg-gray-50"
+                        >
+                          {copied ? (
+                            <>
+                              <Check className="w-4 h-4 mr-1 text-green-600" />
+                              Copied!
+                            </>
+                          ) : (
+                            <>
+                              <Copy className="w-4 h-4 mr-1" />
+                              Copy
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                      <div 
+                        className="prose prose-sm max-w-none text-gray-800 leading-relaxed"
+                        dangerouslySetInnerHTML={{ __html: formatAIText(response) }}
+                      />
+                    </div>
                   </div>
-                ) : (
-                  <div className="bg-gray-50 rounded-lg p-6 min-h-[300px] flex items-center justify-center">
-                    <p className="text-gray-500 text-center">
-                      Your personalized interview response will appear here
-                    </p>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center h-full text-gray-500">
+                  <BriefcaseIcon className="h-12 w-12 mb-4 text-gray-300" />
+                  <p>Select a question above or ask your own interview question</p>
+                </div>
+              )}
+            </CardContent>
+
+            {/* Input Form at Bottom */}
+            <div className="border-t bg-gray-50/50 p-6">
+              <form onSubmit={handleSubmit} className="space-y-4">
+                {error && (
+                  <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                    <p className="text-red-700 text-sm">{error}</p>
                   </div>
                 )}
-              </CardContent>
-            </Card>
-          </div>
+
+                <div className="flex gap-2">
+                  <Textarea
+                    value={prompt}
+                    onChange={(e) => setPrompt(e.target.value)}
+                    placeholder="Type your interview question or create a custom scenario..."
+                    className="flex-1 resize-none border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                    rows={3}
+                    disabled={isLoading}
+                  />
+                  <div className="flex flex-col gap-2">
+                    <Button
+                      type="submit"
+                      disabled={isLoading || !prompt.trim()}
+                      className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold px-6 rounded-xl transition-all duration-300"
+                    >
+                      {isLoading ? (
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                      ) : (
+                        <Send className="w-4 h-4" />
+                      )}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => {
+                        setPrompt('');
+                        setResponse('');
+                        setSelectedQuestion(null);
+                        setError(null);
+                      }}
+                      className="px-6"
+                    >
+                      Clear
+                    </Button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </Card>
         </div>
 
         {/* Features */}

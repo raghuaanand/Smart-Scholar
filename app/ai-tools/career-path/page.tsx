@@ -1,10 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { MapPin, User, GraduationCap, Copy, Check, Sparkles, TrendingUp } from 'lucide-react';
+import { MapPin, User, GraduationCap, Copy, Check, Sparkles, TrendingUp, Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { formatAIText } from '@/lib/utils';
 
 const CareerPathAdvisor = () => {
   const [interests, setInterests] = useState('');
@@ -70,123 +71,147 @@ const CareerPathAdvisor = () => {
         </div>
 
         <div className="max-w-4xl mx-auto">
-          {/* Input Form */}
-          <Card className="border-0 shadow-lg mb-8">
-            <CardHeader>
+          {/* Chat-like Interface */}
+          <Card className="border-0 shadow-lg h-[600px] flex flex-col">
+            <CardHeader className="border-b bg-gradient-to-r from-blue-500 to-purple-600 text-white">
               <CardTitle className="flex items-center gap-2">
-                <User className="w-5 h-5 text-blue-600" />
-                Personal Information
+                <User className="w-5 h-5" />
+                Career Path Assistant
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="grid gap-6 md:grid-cols-3">
-                <div className="space-y-2">
-                  <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
-                    <MapPin className="w-4 h-4" />
-                    Interests
-                  </label>
-                  <Input
-                    type="text"
-                    value={interests}
-                    onChange={(e) => setInterests(e.target.value)}
-                    placeholder="e.g., Technology, Design, Management"
-                    className="border-gray-200 focus:border-blue-500 focus:ring-blue-500"
-                  />
+            
+            {/* Messages Area */}
+            <CardContent className="flex-1 p-6 overflow-y-auto">
+              {careerAdvice ? (
+                <div className="space-y-4">
+                  {/* User Query */}
+                  <div className="flex justify-end">
+                    <div className="bg-blue-500 text-white p-4 rounded-lg max-w-[80%] ml-auto">
+                      <div className="text-sm space-y-1">
+                        <p><strong>Interests:</strong> {interests}</p>
+                        <p><strong>Skills:</strong> {skills}</p>
+                        <p><strong>Background:</strong> {academicBackground}</p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* AI Response */}
+                  <div className="flex justify-start">
+                    <div className="bg-gradient-to-br from-blue-50 to-purple-50 border rounded-lg p-6 max-w-[90%]">
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-2">
+                          <TrendingUp className="w-5 h-5 text-purple-600" />
+                          <span className="font-semibold text-gray-900">Your Career Path Recommendation</span>
+                        </div>
+                        <Button
+                          onClick={handleCopyToClipboard}
+                          variant="outline"
+                          size="sm"
+                          className="hover:bg-gray-50"
+                        >
+                          {copied ? (
+                            <>
+                              <Check className="w-4 h-4 mr-1 text-green-600" />
+                              Copied!
+                            </>
+                          ) : (
+                            <>
+                              <Copy className="w-4 h-4 mr-1" />
+                              Copy
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                      <div 
+                        className="prose prose-sm max-w-none text-gray-800 leading-relaxed"
+                        dangerouslySetInnerHTML={{ __html: formatAIText(careerAdvice) }}
+                      />
+                    </div>
+                  </div>
                 </div>
-                
-                <div className="space-y-2">
-                  <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
-                    <Sparkles className="w-4 h-4" />
-                    Skills
-                  </label>
-                  <Input
-                    type="text"
-                    value={skills}
-                    onChange={(e) => setSkills(e.target.value)}
-                    placeholder="e.g., Coding, Problem-solving, Leadership"
-                    className="border-gray-200 focus:border-blue-500 focus:ring-blue-500"
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
-                    <GraduationCap className="w-4 h-4" />
-                    Academic Background
-                  </label>
-                  <Input
-                    type="text"
-                    value={academicBackground}
-                    onChange={(e) => setAcademicBackground(e.target.value)}
-                    placeholder="e.g., Computer Science, Business"
-                    className="border-gray-200 focus:border-blue-500 focus:ring-blue-500"
-                  />
-                </div>
-              </div>
-
-              {error && (
-                <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-                  <p className="text-red-700 text-sm">{error}</p>
+              ) : (
+                <div className="flex flex-col items-center justify-center h-full text-gray-500">
+                  <TrendingUp className="h-12 w-12 mb-4 text-gray-300" />
+                  <p>Fill in your information below to get personalized career advice</p>
                 </div>
               )}
-
-              <Button
-                onClick={handleGenerateCareerPath}
-                disabled={isLoading || !interests || !skills || !academicBackground}
-                className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 rounded-xl transition-all duration-300"
-              >
-                {isLoading ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                    Generating Career Path...
-                  </>
-                ) : (
-                  <>
-                    <TrendingUp className="w-4 h-4 mr-2" />
-                    Generate Career Path
-                  </>
-                )}
-              </Button>
             </CardContent>
-          </Card>
 
-          {/* Results */}
-          {careerAdvice && (
-            <Card className="border-0 shadow-lg">
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <TrendingUp className="w-5 h-5 text-purple-600" />
-                    Your Career Path Recommendation
+            {/* Input Form at Bottom */}
+            <div className="border-t bg-gray-50/50 p-6">
+              <form onSubmit={(e) => { e.preventDefault(); handleGenerateCareerPath(); }} className="space-y-4">
+                <div className="grid gap-4 md:grid-cols-3">
+                  <div className="space-y-2">
+                    <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
+                      <MapPin className="w-4 h-4" />
+                      Interests
+                    </label>
+                    <Input
+                      type="text"
+                      value={interests}
+                      onChange={(e) => setInterests(e.target.value)}
+                      placeholder="e.g., Technology, Design, Management"
+                      className="border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                    />
                   </div>
+                  
+                  <div className="space-y-2">
+                    <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
+                      <Sparkles className="w-4 h-4" />
+                      Skills
+                    </label>
+                    <Input
+                      type="text"
+                      value={skills}
+                      onChange={(e) => setSkills(e.target.value)}
+                      placeholder="e.g., Coding, Problem-solving, Leadership"
+                      className="border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
+                      <GraduationCap className="w-4 h-4" />
+                      Academic Background
+                    </label>
+                    <Input
+                      type="text"
+                      value={academicBackground}
+                      onChange={(e) => setAcademicBackground(e.target.value)}
+                      placeholder="e.g., Computer Science, Business"
+                      className="border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                    />
+                  </div>
+                </div>
+
+                {error && (
+                  <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                    <p className="text-red-700 text-sm">{error}</p>
+                  </div>
+                )}
+
+                <div className="flex gap-2">
                   <Button
-                    onClick={handleCopyToClipboard}
-                    variant="outline"
-                    size="sm"
-                    className="hover:bg-gray-50"
+                    type="submit"
+                    disabled={isLoading || !interests || !skills || !academicBackground}
+                    className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 rounded-xl transition-all duration-300"
                   >
-                    {copied ? (
+                    {isLoading ? (
                       <>
-                        <Check className="w-4 h-4 mr-1 text-green-600" />
-                        Copied!
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        Generating Career Path...
                       </>
                     ) : (
                       <>
-                        <Copy className="w-4 h-4 mr-1" />
-                        Copy
+                        <Send className="w-4 h-4 mr-2" />
+                        Get Career Advice
                       </>
                     )}
                   </Button>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-lg p-6">
-                  <pre className="whitespace-pre-wrap text-gray-800 leading-relaxed text-sm md:text-base">
-                    {careerAdvice}
-                  </pre>
                 </div>
-              </CardContent>
-            </Card>
-          )}
+              </form>
+            </div>
+          </Card>
         </div>
 
         {/* Features */}
