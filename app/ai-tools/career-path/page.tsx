@@ -1,11 +1,10 @@
 'use client';
 
+import { useState } from 'react';
+import { MapPin, User, GraduationCap, Copy, Check, Sparkles, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import React, { useState } from 'react';
-import SyntaxHighlighter from 'react-syntax-highlighter';
-import { docco } from 'react-syntax-highlighter/dist/esm/styles/hljs';
-
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 const CareerPathAdvisor = () => {
   const [interests, setInterests] = useState('');
@@ -14,6 +13,15 @@ const CareerPathAdvisor = () => {
   const [careerAdvice, setCareerAdvice] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [copied, setCopied] = useState(false);
+
+  const handleCopyToClipboard = async () => {
+    if (careerAdvice) {
+      await navigator.clipboard.writeText(careerAdvice);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
 
   const handleGenerateCareerPath = async () => {
     if (!interests || !skills || !academicBackground) {
@@ -45,77 +53,169 @@ const CareerPathAdvisor = () => {
   };
 
   return (
-    <div className="md:mt-[160px] mt-20 mx-4 lg:mx-16">
-      <h1 className="text-2xl lg:text-3xl font-bold text-center mb-8">AI-powered Career Path Advisor</h1>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+      <div className="container mx-auto px-4 py-8 pt-24 md:pt-32">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-sm font-medium mb-4">
+            <TrendingUp className="w-4 h-4" />
+            AI Career Advisor
+          </div>
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            Career Path Advisor
+          </h1>
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            Discover your ideal career path with personalized AI recommendations based on your interests, skills, and background
+          </p>
+        </div>
 
-      <div className="flex flex-col gap-6 lg:gap-8 lg:flex-row">
-        <div className="flex-1">
-          <label className="block mb-2 text-md lg:text-lg font-medium">
-            Interests:
-            <Input 
-              type="text" 
-              value={interests} 
-              onChange={(e) => setInterests(e.target.value)} 
-              placeholder="e.g., Technology, Design, Management"
-              className="mt-1 block w-full"
-            />
-          </label>
+        <div className="max-w-4xl mx-auto">
+          {/* Input Form */}
+          <Card className="border-0 shadow-lg mb-8">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <User className="w-5 h-5 text-blue-600" />
+                Personal Information
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid gap-6 md:grid-cols-3">
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
+                    <MapPin className="w-4 h-4" />
+                    Interests
+                  </label>
+                  <Input
+                    type="text"
+                    value={interests}
+                    onChange={(e) => setInterests(e.target.value)}
+                    placeholder="e.g., Technology, Design, Management"
+                    className="border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
+                    <Sparkles className="w-4 h-4" />
+                    Skills
+                  </label>
+                  <Input
+                    type="text"
+                    value={skills}
+                    onChange={(e) => setSkills(e.target.value)}
+                    placeholder="e.g., Coding, Problem-solving, Leadership"
+                    className="border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
+                    <GraduationCap className="w-4 h-4" />
+                    Academic Background
+                  </label>
+                  <Input
+                    type="text"
+                    value={academicBackground}
+                    onChange={(e) => setAcademicBackground(e.target.value)}
+                    placeholder="e.g., Computer Science, Business"
+                    className="border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                  />
+                </div>
+              </div>
+
+              {error && (
+                <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                  <p className="text-red-700 text-sm">{error}</p>
+                </div>
+              )}
+
+              <Button
+                onClick={handleGenerateCareerPath}
+                disabled={isLoading || !interests || !skills || !academicBackground}
+                className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 rounded-xl transition-all duration-300"
+              >
+                {isLoading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    Generating Career Path...
+                  </>
+                ) : (
+                  <>
+                    <TrendingUp className="w-4 h-4 mr-2" />
+                    Generate Career Path
+                  </>
+                )}
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* Results */}
+          {careerAdvice && (
+            <Card className="border-0 shadow-lg">
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <TrendingUp className="w-5 h-5 text-purple-600" />
+                    Your Career Path Recommendation
+                  </div>
+                  <Button
+                    onClick={handleCopyToClipboard}
+                    variant="outline"
+                    size="sm"
+                    className="hover:bg-gray-50"
+                  >
+                    {copied ? (
+                      <>
+                        <Check className="w-4 h-4 mr-1 text-green-600" />
+                        Copied!
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-4 h-4 mr-1" />
+                        Copy
+                      </>
+                    )}
+                  </Button>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-lg p-6">
+                  <pre className="whitespace-pre-wrap text-gray-800 leading-relaxed text-sm md:text-base">
+                    {careerAdvice}
+                  </pre>
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
-        <div className="flex-1">
-          <label className="block mb-2 text-md lg:text-lg font-medium">
-            Skills:
-            <Input 
-              type="text" 
-              value={skills} 
-              onChange={(e) => setSkills(e.target.value)} 
-              placeholder="e.g., Coding, Problem-solving, Leadership"
-              className="mt-1 block w-full"
-            />
-          </label>
-        </div>
-        <div className="flex-1">
-          <label className="block mb-2 text-md lg:text-lg font-medium">
-            Academic Background:
-            <Input 
-              type="text" 
-              value={academicBackground} 
-              onChange={(e) => setAcademicBackground(e.target.value)} 
-              placeholder="e.g., Computer Science, Business Management"
-              className="mt-1 block w-full"
-            />
-          </label>
+
+        {/* Features */}
+        <div className="mt-16 max-w-4xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="text-center p-6 bg-white rounded-xl shadow-sm">
+              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <User className="w-6 h-6 text-blue-600" />
+              </div>
+              <h3 className="font-semibold text-gray-900 mb-2">Personalized Analysis</h3>
+              <p className="text-gray-600 text-sm">Tailored recommendations based on your unique profile</p>
+            </div>
+            <div className="text-center p-6 bg-white rounded-xl shadow-sm">
+              <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <TrendingUp className="w-6 h-6 text-purple-600" />
+              </div>
+              <h3 className="font-semibold text-gray-900 mb-2">Growth Opportunities</h3>
+              <p className="text-gray-600 text-sm">Discover paths for career advancement and skill development</p>
+            </div>
+            <div className="text-center p-6 bg-white rounded-xl shadow-sm">
+              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <GraduationCap className="w-6 h-6 text-green-600" />
+              </div>
+              <h3 className="font-semibold text-gray-900 mb-2">Industry Insights</h3>
+              <p className="text-gray-600 text-sm">Get insights into market trends and job opportunities</p>
+            </div>
+          </div>
         </div>
       </div>
-
-      {error && <p className="text-red-500 text-center mt-4">{error}</p>}
-
-      <Button 
-        className="mt-8 p-3 w-full lg:w-auto mx-auto block bg-blue-500 text-white hover:bg-blue-600 transition"
-        onClick={handleGenerateCareerPath}
-        disabled={isLoading}
-      >
-        {isLoading ? "Generating..." : "Generate Career Path"}
-      </Button>
-
-      {careerAdvice && (
-        <>
-          <h2 className="my-8 text-xl lg:text-2xl text-center">Suggested Career Path:</h2>
-          <div className="rounded-lg border my-4 mx-3 lg:mx-16 p-4 bg-gray-100">
-            {/* <pre className="whitespace-pre-wrap text-md lg:text-lg">{careerAdvice}</pre>
-                */}
-            <SyntaxHighlighter language="html" style={docco} className="mt-2">
-                       {careerAdvice}
-          </SyntaxHighlighter>
-
-            <Button 
-              className="mt-4 bg-green-500 text-white p-2 rounded-lg hover:bg-green-600 transition w-full lg:w-auto mx-auto block"
-              onClick={() => navigator.clipboard.writeText(careerAdvice)}
-            >
-              Copy to Clipboard
-            </Button>
-          </div>
-        </>
-      )}
     </div>
   );
 };
